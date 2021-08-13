@@ -1,0 +1,112 @@
+<app-header></app-header>
+<div class="container">
+    <div class="row">
+        <div class="col-12 card border-0 rounded shadow">
+            <div class="row m-3">
+                <div class="col-12 col-md-6">
+                    <label for="inputSearch" class="form-label">Buscar por</label>
+                    <select id="inputState" class="form-select" [(ngModel)]="optionSel">
+                      <option *ngFor="let option of optionsSearch" [value]="option.key" #optionSelected  >{{option.value}} </option>
+                    </select>
+
+                    <label for="exampleFormControlSearchText" class="form-label">Término a consultar</label>
+                    <input type="text" class="form-control" id="exampleFormControlSearchText" [disabled]="optionSel == 'any'" [(ngModel)]="searchText">
+
+                </div>
+                <div class="col-12 col-md-6 my-auto text-center">
+                    <button type="button" class="btn btn-success" (click)="getResults()"> Consultar recursos </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 card border-0 rounded shadow my-3" *ngIf="searched">
+            <div class="row m-2" *ngIf="!seeDataResource">
+                <div class="col-12" *ngIf="filteredResources.length">
+                    <div class="row jutify-content-end">
+                        <div class="col-4 my-3">
+                            <label for="exampleFormControlFilterText" class="form-label">Escriba una palabra para filtrar</label>
+                            <input type="text" class="form-control" id="exampleFormControlFilterText" [(ngModel)]="filterText" (change)="filter($event)">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 my-2" *ngFor="let resource of filteredResources">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{resource.title.value}} </h5>
+                                    <p class="card-text text-truncate">{{resource.abstract ? resource.abstract.value : 'no data'}}</p>
+                                    <a class="btn btn-outline-primary" (click)="seeResource(resource)">Ver recurso</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center">
+                            <nav *ngIf="pager.pages && pager.pages.length" aria-label="table navigation">
+                                <ul class="pagination justify-content-center">
+
+                                    <li class="page-item" [ngClass]="{disabled:pager.currentPage === 1}">
+                                        <a class="page-link" (click)="setPage(1)">
+                                            <i class="fas fa-fast-backward"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item" [ngClass]="{disabled:pager.currentPage === 1}">
+                                        <a class="page-link" (click)="setPage(pager.currentPage - 1)">
+                                            <i class="fas fa-step-backward"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item active" *ngFor="let page of pager.pages" [ngClass]="{active:pager.currentPage === page}">
+                                        <a class="page-link" (click)="setPage(page)">{{ page }}</a>
+                                    </li>
+                                    <li class="page-item" [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
+                                        <a class="page-link" (click)="setPage(pager.currentPage + 1)">
+                                            <i class="fas fa-step-forward"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item" [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
+                                        <a class="page-link" (click)="setPage(pager.totalPages)">
+                                            <i class="fas fa-fast-forward"></i>
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12" *ngIf="!filteredResources.length && searched">
+                    <div class="row">
+                        <div class="col-12">
+                            <h4> No se encontraron recursos para su búsqueda</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row m-2" *ngIf="seeDataResource">
+                <div class="col-12 my-2">
+                    <button type="button" class="btn btn-primary" (click)="goBack()">
+                        <i class="fas fa-arrow-left"></i>
+                        Atrás</button>
+                    <div class="table-responsive my-3">
+                        <table class="table">
+                            <thead>
+                                <th>Propiedad</th>
+                                <th>Valor</th>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of resourceSelected | keyvalue">
+                                    <td>{{$any(item).key | uppercase}} </td>
+                                    <td>
+                                        <span *ngIf="$any(item).value.type == 'literal'"> {{item.value | getValue}}</span>
+                                        <a [href]="$any(item).value.value" target="_blank" rel="noopener noreferrer" *ngIf="$any(item).value.type == 'uri'"> {{item.value | getValue}} </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<app-footer></app-footer>
