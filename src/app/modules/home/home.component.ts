@@ -9,10 +9,7 @@ import { PagerService } from '../../shared/services/pager.service';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  optionsSearch = [ {
-    key:'any',
-    value: 'Ninguno'
-  },
+  optionsSearch = [
   {
     key:'author',
     value: 'Autor'
@@ -79,9 +76,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   resources: any;
   filteredResources: any[] = [];
   searched = false;
+  loading = false;
   resourceSelected: any;
   seeDataResource = false;
   pager: any = {};
+  subtitulo = 'Interfaz de Consulta';
 
 
   constructor(private requestService: RequestService,
@@ -89,6 +88,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.resourceSelected = null;
+    this.optionsSearch.sort((a, b) => {return a.value > b.value && 1 || -1});
   }
 
   ngOnDestroy(): void {
@@ -99,6 +99,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   getResults() {
     this.searched = false;
+    this.loading = true;
+    this.goBack();
     if (this.optionSel !== 'any') {
       this.queryData(true);
     } else {
@@ -108,8 +110,22 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   queryData(filter = false) {
     let filtroSparql = "";
+    const text = this.searchText.trim();
     if ( filter ) {
-      filtroSparql = `FILTER (lcase(str(?${this.optionSel})) = lcase(str("${this.searchText }")))`
+      switch (this.optionSel) {
+        case 'dateSubmitted':
+          filtroSparql = `FILTER regex(?${this.optionSel}, "${text }", "i")`
+          break;
+        case 'date':
+          filtroSparql = `FILTER regex(?${this.optionSel}, "${text }", "i")`
+          break;
+      
+        default:
+          filtroSparql = `FILTER regex(?${this.optionSel}, "${text }", "i")`
+
+          //filtroSparql = `FILTER (lcase(str(?${this.optionSel})) = lcase(str("${text }")))`
+          break;
+      }
     }
     const consulta_sparql = "" +
             "PREFIX dct: <http://purl.org/dc/terms/>\n" +
@@ -180,14 +196,22 @@ export class HomeComponent implements OnInit, OnDestroy {
             "   } } ORDER BY ASC(?resource)";
     let body = 'query=' + encodeURIComponent(consulta_sparql);
     this.dataSubscription = this.requestService.getResources(body).subscribe( (res:any) => {
-      this.data = res;
-      this.resources = this.mergeResources(res);
-      console.log(this.data);
-      this.setPage(1);
-      this.filteredResources = this.resources.results.bindings.slice(this.pager.startIndex, this.pager.endIndex + 1);
-      this.searched = true;
+      if (res.results.bindings.length > 0) {
+        this.data = res;
+        this.resources = this.mergeResources(res);
+        this.setPage(1);
+        this.filteredResources = this.resources.results.bindings.slice(this.pager.startIndex, this.pager.endIndex + 1);
+        this.searched = true;
+      } else {
+        this.data = null;
+        this.resources = null;
+        this.searched = true;
+        this.filteredResources = [];
+      }
+      this.loading = false;
     }, error => {
       this.searched = true;
+      this.loading = false;
       console.error('Error consultando recursos', error);
     });
   }
@@ -255,7 +279,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   filter(e: any) {
-    console.log('entre');
+    console.log(e);
     if (e.target.value.trim() !== '') {
       let filter_array = [];
       for (let item of this.resources.results.bindings) {
@@ -274,6 +298,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.filteredResources = filter_array; 
     }
     
+  }
+
+  isHyperlink(item: any) {
+    if (item.value.type === 'uri' || ['contributor', 'resource', 'rightsuri', 'organization', 'division', 'uri', 'annotationentity'].includes(item.key)) {
+      return true
+    }
+    return false;
   }
 
 }
