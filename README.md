@@ -1,6 +1,9 @@
 # LodInterfaz
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.0.1.
+First, clone this project
+Second, locate on folder project
+Third, run npm install.
 
 ## Development server
 
