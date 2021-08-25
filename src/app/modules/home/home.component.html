@@ -7,7 +7,7 @@
 
                 <div class="col-12 col-md-6">
                     <label for="inputSearch" class="form-label">Buscar por</label>
-                    <select id="inputState" class="form-select" [(ngModel)]="optionSel">
+                    <select id="inputState" class="form-select" [(ngModel)]="optionSel" (change)="filterChanged()">
                         <option value="any">Ninguno</option>
                       <option *ngFor="let option of optionsSearch" [value]="option.key" #optionSelected  >{{option.value}} </option>
                     </select>
@@ -32,14 +32,14 @@
 
         <div class="col-12 card border-0 rounded shadow my-3" *ngIf="searched && !loading">
             <div class="row m-2" *ngIf="!seeDataResource">
-                <div class="col-12" *ngIf="filteredResources.length">
-                    <div class="row jutify-content-end">
+                <div class="col-12">
+                    <div class="row jutify-content-end" *ngIf="resources">
                         <div class="col-4 my-3">
                             <label for="exampleFormControlFilterText" class="form-label">Escriba una palabra para filtrar</label>
                             <input type="text" class="form-control" id="exampleFormControlFilterText" [(ngModel)]="filterText" (keyup)="filter($event)">
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row" *ngIf="filteredResources.length">
                         <div class="col-sm-6 my-2" *ngFor="let resource of filteredResources">
                             <div class="card">
                                 <div class="card-body">
@@ -87,7 +87,7 @@
 
                 <div class="col-12" *ngIf="!filteredResources.length && searched">
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-12 text-center">
                             <h4> No se encontraron recursos para su búsqueda</h4>
                         </div>
                     </div>

@@ -296,6 +296,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
       this.setPage(1);
       this.filteredResources = filter_array; 
+    } else if(e.target.value.trim() === '') {
+      this.filteredResources = this.resources.results.bindings;
     }
     
   }
@@ -305,6 +307,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       return true
     }
     return false;
+  }
+
+  filterChanged() {
+    if (this.optionSel === 'any') {
+      this.searchText = '';
+    }
+    return;
   }
 
 }
