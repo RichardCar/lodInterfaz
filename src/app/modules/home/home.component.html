@@ -108,8 +108,8 @@
                                 <tr *ngFor="let item of resourceSelected | keyvalue">
                                     <td>{{$any(item).key | uppercase}} </td>
                                     <td>
-                                        <span *ngIf="$any(item).value.type == 'literal'"> {{item.value | getValue}}</span>
-                                        <a [href]="$any(item).value.value" target="_blank" rel="noopener noreferrer" *ngIf="$any(item).value.type == 'uri'"> {{item.value | getValue}} </a>
+                                        <span *ngIf="!isHyperlink(item)"> {{item.value | getValue}}</span>
+                                        <a [href]="$any(item).value.value" target="_blank" rel="noopener noreferrer" *ngIf="isHyperlink(item)"> {{item.value | getValue}} </a>
                                     </td>
                                 </tr>
                             </tbody>

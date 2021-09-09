@@ -35,7 +35,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     value: 'P. claves'
   },
   {
-    key:'NaN5',
+    key:'partof',
     value: 'Colección'
   },
   {
@@ -114,15 +114,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     if ( filter ) {
       switch (this.optionSel) {
         case 'dateSubmitted':
-          filtroSparql = `FILTER regex(?${this.optionSel}, "${text }", "i")`
+          filtroSparql = `FILTER (?${this.optionSel} >=  "${text }"^^xsd:dateTime || ?created >=  "${text }"^^xsd:dateTime || ?available >= "${text }"^^xsd:dateTime ||  ?modified >= "${text }"^^xsd:dateTime || ?issued >= "${text }"^^xsd:dateTime || ?dateCopyrighted  >= "${text }"^^xsd:dateTime || ?date >= "${text }"^^xsd:dateTime)`
           break;
-        case 'date':
-          filtroSparql = `FILTER regex(?${this.optionSel}, "${text }", "i")`
-          break;
-      
         default:
           filtroSparql = `FILTER regex(?${this.optionSel}, "${text }", "i")`
-
           //filtroSparql = `FILTER (lcase(str(?${this.optionSel})) = lcase(str("${text }")))`
           break;
       }
@@ -192,6 +187,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             "     OPTIONAL {?resource aiiso:institution ?institution} .\n" +
             "     OPTIONAL {?resource dcterms:contributor ?contributor} .\n" +
             "     OPTIONAL {?resource dcterms:dateSubmitted ?dateSubmitted} .\n" +
+            "     OPTIONAL {?resource dspace:isSubcommunityOf ?isSubcommunityOf} .\n" +
             "     " + filtroSparql + "\n" +
             "   } } ORDER BY ASC(?resource)";
     let body = 'query=' + encodeURIComponent(consulta_sparql);
